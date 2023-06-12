@@ -431,6 +431,16 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
  */
 - (TTTAttributedLabelLink *)linkAtPoint:(CGPoint)point;
 
+/// 현재 `CTFramesetter`를 리턴
+///
+/// 기존에는 `private`였던 메소드를  `public`으로 뚫어 사용한다.
+- (CTFramesetterRef)framesetter;
+
+/// 현재까지 설정된 속성을 기반으로 렌더링한 `NSAttributedString`을 리턴
+///
+/// 기존에는 `private`였던 메소드를  `public`으로 뚫어 사용한다.
+- (NSAttributedString *)renderedAttributedText;
+
 @end
 
 /**
