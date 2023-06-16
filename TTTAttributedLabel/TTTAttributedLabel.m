@@ -171,6 +171,10 @@ static inline NSAttributedString * NSAttributedStringBySettingColorFromContext(N
 }
 
 static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstraints(CTFramesetterRef framesetter, NSAttributedString *attributedString, CGSize size, NSUInteger numberOfLines) {
+    if (size.width < 0) {
+         size.width = TTTFLOAT_MAX;
+     }
+    
     CFRange rangeToSize = CFRangeMake(0, (CFIndex)[attributedString length]);
     CGSize constraints = CGSizeMake(size.width, TTTFLOAT_MAX);
 
