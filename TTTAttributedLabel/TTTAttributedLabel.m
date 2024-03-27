@@ -866,7 +866,9 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
     CFIndex lineIndex = 0;
     for (id line in lines) {
         CGFloat ascent = 0.0f, descent = 0.0f, leading = 0.0f;
-        CGFloat width = (CGFloat)CTLineGetTypographicBounds((__bridge CTLineRef)line, &ascent, &descent, &leading) ;
+        CGFloat width = (CGFloat)CTLineGetTypographicBounds((__bridge CTLineRef)line, &ascent, &descent, &leading);
+        CGFloat maxHeight = 0.0f;
+        CGFloat maxRunDescent = 0.0f;
 
         for (id glyphRun in (__bridge NSArray *)CTLineGetGlyphRuns((__bridge CTLineRef)line)) {
             NSDictionary *attributes = (__bridge NSDictionary *)CTRunGetAttributes((__bridge CTRunRef) glyphRun);
@@ -894,10 +896,26 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
                         xOffset = CTLineGetOffsetForStringIndex((__bridge CTLineRef)line, glyphRange.location, NULL);
                         break;
                 }
+                
+                if (fillColor) {
+                    maxHeight = MAX(maxHeight, runBounds.size.height);
+                    runBounds.size.height = maxHeight;
+                    
+                    maxRunDescent = MAX(maxRunDescent, runDescent);
+                    
+                    if (maxRunDescent == 0) {
+                        maxRunDescent = runDescent;
+                    }
+                }
 
                 runBounds.origin.x = origins[lineIndex].x + rect.origin.x + xOffset - fillPadding.left - rect.origin.x;
                 runBounds.origin.y = origins[lineIndex].y + rect.origin.y - fillPadding.bottom - rect.origin.y;
-                runBounds.origin.y -= runDescent;
+                
+                if (fillColor) {
+                    runBounds.origin.y -= maxRunDescent;
+                } else {
+                    runBounds.origin.y -= runDescent;
+                }
 
                 // Don't draw higlightedLinkBackground too far to the right
                 if (CGRectGetWidth(runBounds) > width) {
